@@ -1,8 +1,10 @@
-from byro.bookkeeping.signals import process_csv_upload
+from byro.bookkeeping.signals import process_csv_upload, process_transaction
 
 from byro.bookkeeping.models import (
     Account, AccountCategory, Booking, Transaction,
 )
+
+from byro.members.models import Member
 
 from django.dispatch import receiver
 from django.utils.timezone import now
@@ -78,5 +80,42 @@ def process_fidor_csv(sender, **kwargs):
                 data=data,
                 **params
             )
+
+    return True
+
+@receiver(process_transaction)
+def match_transaction(sender, signal, **kwargs):
+    transaction = sender
+
+    if transaction.is_read_only:
+        return False
+    if transaction.is_balanced:
+        return False
+
+    match = re.search("NLL[0-9]{3}", transaction.find_memo().upper())
+    
+    if match:
+        uid = match.group(0).upper()
+    else:
+        return False
+
+    member = None
+
+    try:
+        member = Member.objects.get(number=uid)
+    except Member.DoesNotExist:
+        return False
+    
+    balances = transaction.balances
+    data = {
+        'amount': abs(balances['debit'] - balances['credit']),
+        'account': SpecialAccounts.fees_receivable,
+        'user_or_context': 'Fidor Auto-Matcher',
+        'member': member,
+    }
+    if balances['debit'] > balances['credit']:
+        transaction.credit(**data)
+    else:
+        transaction.debit(**data)
 
     return True
