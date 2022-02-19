@@ -28,10 +28,10 @@ def process_fidor_csv(sender, **kwargs):
         memo = re.split('BIC: \w+ ', row["Beschreibung"])[-1]
         value_datetime = datetime.strptime(row["Datum"], '%d.%m.%Y')
         amount = Decimal(row["Wert"].replace('.', '').replace(',', '.'))
-        if (row["Beschreibung"] == "Kontofuehrung"):
+        if (row["Beschreibung"] == "Kontofuehrung" or row["Beschreibung"] == "Aktivitaetsbonus"):
             receiver_or_sender = "Fidor"
         else:
-            receiver_or_sender = re.split("(Absender: )(.*)(, IBAN:)", row["Beschreibung2"])[2]
+            receiver_or_sender = re.split("((Absender)|(Empfaenger))(.*)(, IBAN.)\s+", row["Beschreibung2"])[2]
 
         account = SpecialAccounts.bank
 
