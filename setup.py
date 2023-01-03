@@ -25,7 +25,7 @@ cmdclass = {
 
 setup(
     name='byro-fidor-importer',
-    version='0.0.1',
+    version='0.2',
     description='Can deal with the exported CSVs from Fidor',
     long_description=long_description,
     url='GitHub repository URL',

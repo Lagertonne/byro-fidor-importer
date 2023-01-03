@@ -9,9 +9,9 @@ class PluginApp(AppConfig):
     class ByroPluginMeta:
         name = ugettext_lazy('Fidor importer for byro')
         author = 'lagertonne'
-        description = ugettext_lazy('Short description')
+        description = ugettext_lazy('This importer can handle the csv files exported by fidor')
         visible = True
-        version = '0.0.1'
+        version = '0.2'
 
     def ready(self):
         from . import signals  # NOQA
