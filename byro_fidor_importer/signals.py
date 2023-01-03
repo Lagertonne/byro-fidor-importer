@@ -24,14 +24,15 @@ def process_fidor_csv(sender, **kwargs):
     transactions = []
     booking_timestamp = now()
     for row in csv_reader:
-        # Filter relevant details from csv
-        memo = re.split('BIC: \w+ ', row["Beschreibung"])[-1]
+        memo = re.split('BIC\s+\w+ ', row["Beschreibung"])[-1]
         value_datetime = datetime.strptime(row["Datum"], '%d.%m.%Y')
         amount = Decimal(row["Wert"].replace('.', '').replace(',', '.'))
         if (row["Beschreibung"] == "Kontofuehrung" or row["Beschreibung"] == "Aktivitaetsbonus"):
             receiver_or_sender = "Fidor"
         else:
-            receiver_or_sender = re.split("((Absender)|(Empfaenger))(.*)(, IBAN.)\s+", row["Beschreibung2"])[2]
+            parsed_partner = re.split("(Absender|Empfaenger)(.*)(, IBAN)\s+", row["Beschreibung2"])
+            iban = parsed_partner[-1].split(",")[0]
+            receiver_or_sender = parsed_partner[2].lstrip().rstrip() + " (" + iban + ")"
 
         account = SpecialAccounts.bank
 
