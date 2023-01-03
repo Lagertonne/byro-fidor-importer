@@ -3,6 +3,13 @@ Fidor importer for byro
 
 This is a plugin for `byro`_. 
 
+Version information
+-------------------
+
+Be careful when updating. At least between 0.1 and 0.2 fidor changed it's format which leads to a failing duplicate detection. Therefore it is very possible that you import bookings two times.
+
+But Fidor is closing soon, so I guess this doesn't really matter anymore.
+
 Development setup
 -----------------
 
